@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - Photo Ezine{% endblock %}
+
+{% block content %}
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+    <h1 class="text-3xl font-bold text-gray-900">User Management</h1>
+    <a href="{{ url_for('admin_add_user') }}" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">Add New User</a>
+</div>
+
+{% if users %}
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 border-b">Username</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 border-b">Email</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 border-b">Role</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 border-b">Status</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 border-b">Articles</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 border-b">Joined</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900 border-b">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for user in users %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4">
+                                <div class="font-semibold text-gray-900">{{ user.username }}</div>
+                            </td>
+                            <td class="px-6 py-4 text-gray-700">{{ user.email }}</td>
+                            <td class="px-6 py-4">
+                                {% if user.is_admin %}
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full">Admin</span>
+                                {% else %}
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">Writer</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if user.active %}
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">Active</span>
+                                {% else %}
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-800 rounded-full">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-gray-700">{{ user.article_count }}</td>
+                            <td class="px-6 py-4 text-gray-700">{{ user.created_at[:10] }}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-wrap gap-2">
+                                    <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" 
+                                       class="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors">Edit</a>
+                                    {% if user.id != session.user_id %}
+                                        <a href="{{ url_for('admin_delete_user', user_id=user.id) }}" 
+                                           class="text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors"
+                                           onclick="return confirm('Are you sure you want to delete {{ user.username }}? This action cannot be undone.')">Delete</a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-12 bg-white rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">No users found</h2>
+        <p class="text-gray-600 mb-6">Start by adding your first user!</p>
+        <a href="{{ url_for('admin_add_user') }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">Add User</a>
+    </div>
+{% endif %}
+{% endblock %}

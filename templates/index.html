@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 mb-4">Welcome to Photo Ezine</h1>
+    <p class="text-xl text-gray-600">Discover amazing stories and photography</p>
+</div>
+
+{% if articles %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for article in articles %}
+            <article class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                {% if article.image_path %}
+                    <img src="{{ url_for('static', filename='uploads/' + article.image_path) }}" 
+                         alt="{{ article.title }}" 
+                         class="w-full h-48 object-cover">
+                {% endif %}
+                
+                <div class="p-6">
+                    <h2 class="text-xl font-bold mb-2">
+                        <a href="{{ url_for('view_article', article_id=article.id) }}" 
+                           class="text-slate-800 hover:text-blue-600 transition-colors">{{ article.title }}</a>
+                    </h2>
+                    
+                    <p class="text-gray-600 text-sm mb-4">
+                        By {{ article.username }} • {{ article.created_at[:10] }}
+                    </p>
+                    
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        {{ article.content[:150] }}{% if article.content|length > 150 %}...{% endif %}
+                    </p>
+                    
+                    <a href="{{ url_for('view_article', article_id=article.id) }}" 
+                       class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Read More</a>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-12 bg-white rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">No articles published yet</h2>
+        <p class="text-gray-600 mb-6">Be the first to share your story!</p>
+        {% if not session.user_id %}
+            <a href="{{ url_for('login') }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">Get Started</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}
