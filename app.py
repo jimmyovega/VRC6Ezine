@@ -6,7 +6,7 @@ import uuid
 
 from config import Config
 from database import get_db_connection
-from utils import allowed_file, send_welcome_email, generate_random_password
+from utils import allowed_file, send_welcome_email, generate_random_password, is_strong_password
 from auth import login_required, admin_required
 
 app = Flask(__name__)
@@ -343,8 +343,8 @@ def change_password():
             flash('New passwords do not match', 'error')
             return render_template('change_password.html')
         
-        if len(new_password) < 6:
-            flash('Password must be at least 6 characters long', 'error')
+        if not is_strong_password(new_password):
+            flash('Password must be 8-20 characters, include upper and lower case letters, a digit, and a special character.', 'error')
             return render_template('change_password.html')
         
         conn = get_db_connection()

@@ -16,9 +16,9 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
+            username TEXT UNIQUE NOT NULL CHECK(length(username) <= 20),
+            email TEXT UNIQUE NOT NULL CHECK(length(email) <= 50),
+            password_hash TEXT NOT NULL CHECK(length(password_hash) <= 20),
             is_admin BOOLEAN DEFAULT FALSE,
             active BOOLEAN DEFAULT TRUE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -30,7 +30,8 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS articles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
+            title TEXT NOT NULL CHECK(length(title) <= 50),
+            teaser TEXT NOT NULL CHECK(length(sub_headline) <= 140),
             content TEXT NOT NULL,
             image_path TEXT,
             author_id INTEGER,

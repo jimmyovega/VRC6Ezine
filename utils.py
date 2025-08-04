@@ -2,6 +2,7 @@ import os
 import smtplib
 import secrets
 import string
+import re
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from config import Config
@@ -247,3 +248,16 @@ def get_storage_usage():
         'total_size_formatted': format_file_size(total_size),
         'file_count': file_count
     }
+
+def is_strong_password(password):
+    if len(password) < 8 or len(password) > 20:
+        return False
+    if not re.search(r'[A-Z]', password):
+        return False
+    if not re.search(r'[a-z]', password):
+        return False
+    if not re.search(r'\d', password):
+        return False
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return False
+    return True
