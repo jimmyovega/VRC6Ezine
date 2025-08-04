@@ -31,7 +31,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS articles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL CHECK(length(title) <= 50),
-            teaser TEXT NOT NULL CHECK(length(sub_headline) <= 140),
+            teaser TEXT NOT NULL CHECK(length(teaser) <= 140),
             content TEXT NOT NULL,
             image_path TEXT,
             author_id INTEGER,
