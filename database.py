@@ -18,7 +18,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL CHECK(length(username) <= 20),
             email TEXT UNIQUE NOT NULL CHECK(length(email) <= 50),
-            password_hash TEXT NOT NULL CHECK(length(password_hash) <= 20),
+            password_hash TEXT NOT NULL,
             is_admin BOOLEAN DEFAULT FALSE,
             active BOOLEAN DEFAULT TRUE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

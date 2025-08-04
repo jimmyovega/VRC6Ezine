@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from config import Config
 from PIL import Image
+from werkzeug.security import generate_password_hash, check_password_hash
 
 def allowed_file(filename):
     """Check if uploaded file has allowed extension"""
@@ -261,3 +262,11 @@ def is_strong_password(password):
     if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
         return False
     return True
+
+def hash_password(password):
+    """Hash a password with salt using werkzeug (PBKDF2)."""
+    return generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
+
+def verify_password(stored_hash, password):
+    """Verify a password against the stored hash."""
+    return check_password_hash(stored_hash, password)

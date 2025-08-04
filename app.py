@@ -6,7 +6,7 @@ import uuid
 
 from config import Config
 from database import get_db_connection
-from utils import allowed_file, send_welcome_email, generate_random_password, is_strong_password
+from utils import allowed_file, send_welcome_email, generate_random_password, is_strong_password, hash_password, verify_password
 from auth import login_required, admin_required
 
 app = Flask(__name__)
