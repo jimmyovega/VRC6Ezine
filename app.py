@@ -350,12 +350,16 @@ def change_password():
         conn = get_db_connection()
         user = conn.execute('SELECT password_hash FROM users WHERE id = ?', (session['user_id'],)).fetchone()
         
-        if user['password_hash'] != current_password:
+        if verify_password(user['password_hash'], current_password) is False:
             flash('Current password is incorrect', 'error')
             conn.close()
             return render_template('change_password.html')
         
-        conn.execute('UPDATE users SET password_hash = ? WHERE id = ?', (new_password, session['user_id']))
+        # Hash the new password
+        hashed = hash_password(new_password)
+
+        # Update the password in the database
+        conn.execute('UPDATE users SET password_hash = ? WHERE id = ?', (hashed, session['user_id']))
         conn.commit()
         conn.close()
         

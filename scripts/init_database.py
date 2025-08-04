@@ -2,6 +2,10 @@
 """
 Database initialization script for vrc6 Ezine
 Run this script to set up the database for the first time
+MOVE THIS FILE TO THE PROJECT ROOT DIRECTORY
+This script will create the necessary tables and insert default values
+Make sure to run this script only once, or it will fail if the tables already exist.
+You can re-run it to reset the database, but it will not delete existing data.
 """
 
 from database import init_db

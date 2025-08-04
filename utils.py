@@ -17,7 +17,7 @@ def allowed_file(filename):
 def generate_random_password(length=12):
     """Generate a secure random password"""
     # Use a mix of letters, digits, and safe symbols
-    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+    alphabet = string.ascii_lowercase + string.digits + "!@#$%^&*" + string.ascii_uppercase
     password = ''.join(secrets.choice(alphabet) for _ in range(length))
     return password
 
