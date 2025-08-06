@@ -3,3 +3,5 @@ __pycache__/
 vrc6.db
 venv/
 static/uploads/
+tests/__pycache__/
+*.pyc

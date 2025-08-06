@@ -16,10 +16,32 @@ def allowed_file(filename):
 
 def generate_random_password(length=12):
     """Generate a secure random password"""
-    # Use a mix of letters, digits, and safe symbols
-    alphabet = string.ascii_lowercase + string.digits + "!@#$%^&*" + string.ascii_uppercase
-    password = ''.join(secrets.choice(alphabet) for _ in range(length))
-    return password
+    if length < 8:
+        raise ValueError("Password length must be at least 8 characters.")
+
+    # Define character sets
+    lowercase = string.ascii_lowercase
+    uppercase = string.ascii_uppercase
+    digits = string.digits
+    special = "!@#$%^&*"
+    all_chars = lowercase + uppercase + digits + special
+
+    # Guarantee at least one character from each set
+    password = [
+        secrets.choice(lowercase),
+        secrets.choice(uppercase),
+        secrets.choice(digits),
+        secrets.choice(special)
+    ]
+
+    # Fill the rest with random characters from all sets
+    for _ in range(length - 4):
+        password.append(secrets.choice(all_chars))
+    
+    # Shuffle to avoid predictable positioning
+    secrets.SystemRandom().shuffle(password)
+
+    return ''.join(password)
 
 def send_welcome_email(email, username, password, is_reset=False):
     """Send welcome email to new users with login credentials"""
@@ -264,8 +286,8 @@ def is_strong_password(password):
     return True
 
 def hash_password(password):
-    """Hash a password with salt using werkzeug (PBKDF2)."""
-    return generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
+    """Hash a password with salt using werkzeug (scrypt)."""
+    return generate_password_hash(password, method='scrypt', salt_length=16)
 
 def verify_password(stored_hash, password):
     """Verify a password against the stored hash."""
