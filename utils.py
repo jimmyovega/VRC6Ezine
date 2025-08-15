@@ -3,6 +3,9 @@ import smtplib
 import secrets
 import string
 import re
+import math
+import glob
+from database import get_db_connection
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from config import Config
@@ -133,7 +136,7 @@ def format_file_size(size_bytes):
     if size_bytes == 0:
         return "0B"
     size_names = ["B", "KB", "MB", "GB"]
-    import math
+    #import math
     i = int(math.floor(math.log(size_bytes, 1024)))
     p = math.pow(1024, i)
     s = round(size_bytes / p, 2)
@@ -153,20 +156,17 @@ def get_file_info(filepath):
 
 def validate_email(email):
     """Simple email validation"""
-    import re
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
 def validate_username(username):
     """Validate username format"""
-    import re
     # Username should be 3-20 characters, alphanumeric and underscores only
     pattern = r'^[a-zA-Z0-9_]{3,20}$'
     return re.match(pattern, username) is not None
 
 def sanitize_filename(filename):
     """Sanitize filename for safe storage"""
-    import re
     # Remove any path components
     filename = os.path.basename(filename)
     # Replace spaces and special characters
@@ -192,7 +192,6 @@ def create_thumbnail(image_path, thumbnail_path, size=(300, 300)):
 
 def log_activity(user_id, action, description=None):
     """Log user activity (requires activity_log table)"""
-    from database import get_db_connection
     
     conn = get_db_connection()
     try:
@@ -206,25 +205,25 @@ def log_activity(user_id, action, description=None):
     finally:
         conn.close()
 
-def cleanup_orphaned_images():
-    """Remove image files that are no longer referenced in the database"""
-    from database import get_db_connection
-    import glob
+def get_referenced_images():
+    """Get all image references from database"""
     
     conn = get_db_connection()
+    try:
+        referenced_images = set()
+        articles = conn.execute('SELECT image_path FROM articles WHERE image_path IS NOT NULL').fetchall()
+        for article in articles:
+            if article['image_path']:
+                referenced_images.add(article['image_path'])
+        return referenced_images
+    finally:
+        conn.close()
+
+def get_upload_files():
+    """Get all files in upload directory"""
     
-    # Get all image references from database
-    referenced_images = set()
-    articles = conn.execute('SELECT image_path FROM articles WHERE image_path IS NOT NULL').fetchall()
-    for article in articles:
-        if article['image_path']:
-            referenced_images.add(article['image_path'])
-    
-    conn.close()
-    
-    # Get all files in upload directory
-    upload_dir = Config.UPLOAD_FOLDER
     upload_files = set()
+    upload_dir = Config.UPLOAD_FOLDER
     
     for ext in Config.ALLOWED_EXTENSIONS:
         pattern = os.path.join(upload_dir, f"*.{ext}")
@@ -233,11 +232,13 @@ def cleanup_orphaned_images():
             filename = os.path.basename(file_path)
             upload_files.add(filename)
     
-    # Find orphaned files
-    orphaned_files = upload_files - referenced_images
-    
-    # Remove orphaned files
+    return upload_files
+
+def remove_orphaned_files(orphaned_files):
+    """Remove the orphaned files and return count of removed files"""
     removed_count = 0
+    upload_dir = Config.UPLOAD_FOLDER
+    
     for filename in orphaned_files:
         file_path = os.path.join(upload_dir, filename)
         try:
@@ -248,6 +249,16 @@ def cleanup_orphaned_images():
             print(f"Failed to remove {filename}: {e}")
     
     return removed_count
+
+def cleanup_orphaned_images():
+    """Remove image files that are no longer referenced in the database"""
+    referenced_images = get_referenced_images()
+    upload_files = get_upload_files()
+    
+    # Find orphaned files
+    orphaned_files = upload_files - referenced_images
+    
+    return remove_orphaned_files(orphaned_files)
 
 def get_storage_usage():
     """Get storage usage statistics"""
